@@ -19,14 +19,14 @@ var runApp = function(argOne, argTwo) {
         case "do-what-it-says":
         doWhatItSays();
         break;
-    case "spotify-this-song":
+    case "spotify-this":
     getSong(data);
       break;
     case "movie-this":
       getMovie(data);
       break;
       case "concert-this":
-      getBands(data);
+      getConcert(data);
       break;
     default:
       console.log("Sorry. I don't know how to do that. I am a simple bot.");
@@ -78,11 +78,69 @@ process.stdin.on('data', function (text) {
           console.log("Artist: " + songs[i].artists.map(getArtistName));
           console.log("Preview: " + songs[i].preview_url);
           console.log("Album Name: " + songs[i].album.name);
+         
+        }
+      }
+    );
+  };
+  
+  var getConcert = function(artist) {
+    var queryURL = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
+  
+    axios.get(queryURL).then(
+      function(response) {
+        var jsonData = response.data;
+  
+        if (!jsonData.length) {
+          console.log("Sorry, I didn't find any concerts by  " + artist);
+          return;
+        }
+  
+        console.log("Here's what's coming from " + artist + ":");
+  
+        for (var i = 0; i < jsonData.length; i++) {
+          var show = jsonData[i];
+          console.log(
+            show.venue.name +
+            " in " +
+              (show.venue.region || show.venue.country) +
+              " on " +
+             
+              moment(show.datetime).format("MM/DD/YYYY") 
+          );
           console.log("###################################");
         }
       }
     );
   };
   
+  var getMovie = function(movieName) {
+    if (movieName === undefined) {
+      movieName = "Warcraft";
+    }
+  
+    var urlHit =
+      "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=full&tomatoes=true&apikey=trilogy";
+  
+    axios.get(urlHit).then(
+      function(response) {
+        var jsonData = response.data;
+  
+        console.log("Title: " + jsonData.Title);
+        console.log("Year: " + jsonData.Year);
+        console.log("###################################");
+        console.log("Rated: " + jsonData.Rated);
+        console.log("###################################");
+        console.log("Country: " + jsonData.Country);
+        console.log("Language: " + jsonData.Language);
+        console.log("###################################");
+        console.log("Plot: " + jsonData.Plot);
+        console.log("###################################");
+        console.log("Actors: " + jsonData.Actors);
+        console.log("Rotten Tomatoes Rating: " + jsonData.Ratings[1].Value);
+        console.log("IMDB Rating: " + jsonData.imdbRating);
+      }
+    );
+  };
   
   runApp(process.argv[2], process.argv.slice(3).join(" "));
